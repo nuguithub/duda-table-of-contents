@@ -1,0 +1,322 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Title to ID Generator</title>
+    <style>
+        :root {
+            --primary-color: #4a6fa5;
+            --secondary-color: #166088;
+            --accent-color: #4fc3a1;
+            --light-color: #f8f9fa;
+            --dark-color: #343a40;
+        }
+
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            line-height: 1.6;
+            color: var(--dark-color);
+            background-color: #f5f7fa;
+            margin: 0;
+            padding: 20px;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            padding: 30px;
+            border-radius: 10px;
+            box-shadow: 0 5px 15px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: var(--secondary-color);
+            text-align: center;
+            margin-bottom: 30px;
+            font-weight: 600;
+        }
+
+        .input-area {
+            margin-bottom: 30px;
+        }
+
+        label {
+            display: block;
+            margin-bottom: 8px;
+            font-weight: 500;
+        }
+
+        textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 12px;
+            border: 1px solid #ddd;
+            border-radius: 6px;
+            font-size: 16px;
+            resize: vertical;
+            transition: border 0.3s;
+        }
+
+        textarea:focus {
+            outline: none;
+            border-color: var(--primary-color);
+            box-shadow: 0 0 0 3px rgba(74, 111, 165, 0.2);
+        }
+
+        button {
+            background-color: var(--primary-color);
+            color: white;
+            border: none;
+            padding: 10px 20px;
+            border-radius: 6px;
+            cursor: pointer;
+            font-size: 16px;
+            transition: background 0.3s;
+            display: block;
+            margin: 20px auto;
+        }
+
+        button:hover {
+            background-color: var(--secondary-color);
+        }
+
+        .results {
+            margin-top: 30px;
+        }
+
+        .result-item {
+            background: var(--light-color);
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 15px;
+            display: flex;
+            flex-wrap: wrap;
+            justify-content: space-between;
+            align-items: center;
+            gap: 10px;
+        }
+
+        .name-part,
+        .id-part {
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+
+        .copy-btn {
+            background-color: var(--accent-color);
+            color: white;
+            border: none;
+            padding: 5px 10px;
+            border-radius: 4px;
+            cursor: pointer;
+            font-size: 14px;
+            transition: background 0.3s;
+        }
+
+        .copy-btn:hover {
+            background-color: #3da88a;
+        }
+
+        .copy-btn:active {
+            transform: scale(0.95);
+        }
+
+        .name-label,
+        .id-label {
+            font-weight: 500;
+        }
+
+        .id-list-container {
+            width: 100%;
+        }
+
+        .id-item {
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            padding: 4px;
+            border-bottom: 1px solid #eee;
+        }
+
+        .id-item:last-child {
+            border-bottom: none;
+        }
+
+        .instructions {
+            background-color: #fff8e6;
+            padding: 15px;
+            border-radius: 6px;
+            margin-bottom: 20px;
+            border-left: 4px solid #ffc107;
+        }
+
+        .instructions h3 {
+            margin-top: 0;
+            color: #795548;
+        }
+
+        footer {
+            text-align: center;
+            margin-top: 40px;
+            color: #666;
+            font-size: 14px;
+        }
+
+        @media (max-width: 600px) {
+            .container {
+                padding: 20px;
+            }
+
+            .result-item {
+                flex-direction: column;
+                align-items: flex-start;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <div class="container">
+        <h1>Title to ID Generator</h1>
+
+        <div class="instructions">
+            <h3>How to Use:</h3>
+            <p>Enter one or more titles separated by semicolons (;) in the input box below. The tool will generate:</p>
+            <ul>
+                <li><strong>Name</strong>: The title in capitalized case format</li>
+                <li><strong>ID</strong>: A lowercase ID using the first 3 words (for titles with 3+ words)</li>
+                <li><strong>ID List</strong>: A separate list of just the generated IDs with individual copy buttons
+                </li>
+            </ul>
+            <!-- <p>Example: "Dental implants surgery Newcastle; dentistry" becomes:</p>
+            <ol>
+                <li id="dental-implants-surgery">Dental Implants Surgery Newcastle</li>
+                <li id="dentistry">Dentistry</li>
+            </ol> -->
+        </div>
+
+        <div class="input-area">
+            <label for="titles">Enter titles separated by semicolons:</label>
+            <textarea id="titles" placeholder="Example: Dental implants surgery Newcastle; dentistry"></textarea>
+        </div>
+
+        <button id="generate-btn">Generate Names & IDs</button>
+
+        <div class="results" id="results">
+            <!-- Results will appear here -->
+        </div>
+    </div>
+
+    <footer>
+        <p>Automatically generates HTML ordered lists with IDs from titles</p>
+    </footer>
+
+    <script>
+        document.getElementById('generate-btn').addEventListener('click', function () {
+            const input = document.getElementById('titles').value.trim();
+            const resultsContainer = document.getElementById('results');
+
+            // Clear previous results
+            resultsContainer.innerHTML = '';
+
+            if (!input) {
+                resultsContainer.innerHTML = '<p>Please enter some titles to generate results.</p>';
+                return;
+            }
+
+            // Split input by semicolons
+            const titles = input.split(';').map(title => title.trim()).filter(title => title);
+
+            let htmlOutput = '<ol>\n';
+            let idList = []; // Array to store all IDs
+
+            titles.forEach(title => {
+                // Process name - capitalize each word
+                const formattedName = title.split(' ')
+                    .map(word => word.charAt(0).toUpperCase() + word.slice(1).toLowerCase())
+                    .join(' ');
+
+                // Process ID - first 3 words lowercase, hyphenated
+                const words = title.toLowerCase().split(/\s+/);
+                let formattedId = '';
+
+                if (words.length >= 3) {
+                    formattedId = words.slice(0, 3).join('-');
+                } else {
+                    formattedId = title.toLowerCase().replace(/\s+/g, '-');
+                }
+
+                htmlOutput += `  <li id="${formattedId}">${formattedName}</li>\n`;
+                idList.push(`#${formattedId}`);
+            });
+
+            htmlOutput += '</ol>';
+
+            // Create result items
+            const resultItem = document.createElement('div');
+            resultItem.className = 'result-item';
+
+            // OL output
+            const preElement = document.createElement('pre');
+            preElement.textContent = htmlOutput;
+
+            const copyBtn = document.createElement('button');
+            copyBtn.className = 'copy-btn';
+            copyBtn.textContent = 'Copy HTML';
+            copyBtn.style.marginTop = '10px';
+            copyBtn.setAttribute('data-value', htmlOutput);
+
+            resultItem.appendChild(preElement);
+            resultItem.appendChild(copyBtn);
+            resultsContainer.appendChild(resultItem);
+
+            // ID List output
+            const idListItem = document.createElement('div');
+            idListItem.className = 'result-item';
+
+            const idListContainer = document.createElement('div');
+            idListContainer.className = 'id-list-container';
+
+            idList.forEach(id => {
+                const idItem = document.createElement('div');
+                idItem.className = 'id-item';
+
+                const idSpan = document.createElement('span');
+                idSpan.className = 'id-value';
+                idSpan.textContent = id;
+
+                const itemCopyBtn = document.createElement('button');
+                itemCopyBtn.className = 'copy-btn';
+                itemCopyBtn.textContent = 'Copy';
+                itemCopyBtn.setAttribute('data-value', id);
+
+                idItem.appendChild(idSpan);
+                idItem.appendChild(itemCopyBtn);
+                idListContainer.appendChild(idItem);
+            });
+
+            idListItem.appendChild(idListContainer);
+            resultsContainer.appendChild(idListItem);
+
+            // Add event listeners to all copy buttons
+            document.querySelectorAll('.copy-btn').forEach(btn => {
+                btn.addEventListener('click', function () {
+                    const textToCopy = this.getAttribute('data-value');
+                    navigator.clipboard.writeText(textToCopy).then(() => {
+                        const originalText = this.textContent;
+                        this.textContent = 'Copied!';
+                        setTimeout(() => {
+                            this.textContent = originalText;
+                        }, 2000);
+                    });
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>
