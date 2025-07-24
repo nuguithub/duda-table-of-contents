@@ -250,8 +250,8 @@
                     formattedId = title.toLowerCase().replace(/\s+/g, '-');
                 }
 
-                htmlOutput += `  <li id="${formattedId}">${formattedName}</li>\n`;
-                idList.push(`#${formattedId}`);
+                htmlOutput += `  <li><a href="#${formattedId}">${formattedName}</a></li>\n`;
+                idList.push(`${formattedId}`);
             });
 
             htmlOutput += '</ol>';
